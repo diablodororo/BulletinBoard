@@ -83,6 +83,58 @@
   outline: none;
 }
 
+/* ── Topbar Controls ── */
+.topbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Search ── */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box input {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  padding: 8px 32px 8px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  width: 160px;
+  outline: none;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.search-box input:focus {
+  border-color: rgba(37, 99, 235, 0.45);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.search-clear {
+  position: absolute;
+  right: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.45);
+  padding: 2px 4px;
+  line-height: 1;
+}
+
+.search-clear:hover {
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.search-area {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
 /* ── Composer ── */
 .composer-wrap {
   margin-bottom: 22px;

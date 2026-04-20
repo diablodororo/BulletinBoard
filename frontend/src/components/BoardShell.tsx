@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type { ThemeKey, Post } from '../types'
 import { themeMap } from '../data/themes'
 import { initialPosts } from '../data/initialPosts'
-import { getLatestPost, getCount } from '../api'
+import { getLatestPost, getCount, searchPosts } from '../api'
 import Composer from './Composer'
 import PostCard from './PostCard'
 
@@ -12,6 +12,24 @@ export default function BoardShell() {
   const [historyPosts, setHistoryPosts] = useState<Post[]>(initialPosts.slice(1))
   const [loading, setLoading] = useState(true)
   const [postCount, setPostCount] = useState<number | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Post[] | null>(null)
+  const [searching, setSearching] = useState(false)
+
+  function handleSearch(): void {
+    const q = searchQuery.trim()
+    if (!q) return
+    setSearching(true)
+    searchPosts(q)
+      .then(results => setSearchResults(results))
+      .catch(() => setSearchResults([]))
+      .finally(() => setSearching(false))
+  }
+
+  function handleClearSearch(): void {
+    setSearchQuery('')
+    setSearchResults(null)
+  }
 
   useEffect(() => {
     getLatestPost()
@@ -40,17 +58,32 @@ export default function BoardShell() {
           <div className="board-subtitle">最新公告會固定顯示在最上方，方便快速查看</div>
         </div>
 
-        <div className="theme-switcher">
-          <label htmlFor="themeSelect">風格</label>
-          <select
-            id="themeSelect"
-            value={theme}
-            onChange={e => setTheme(e.target.value as ThemeKey)}
-          >
-            <option value="office">辦公室</option>
-            <option value="classroom">教室</option>
-            <option value="fridge">冰箱</option>
-          </select>
+        <div className="topbar-controls">
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="搜尋公告…"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+            />
+            {searchQuery && (
+              <button className="search-clear" onClick={handleClearSearch}>✕</button>
+            )}
+          </div>
+
+          <div className="theme-switcher">
+            <label htmlFor="themeSelect">風格</label>
+            <select
+              id="themeSelect"
+              value={theme}
+              onChange={e => setTheme(e.target.value as ThemeKey)}
+            >
+              <option value="office">辦公室</option>
+              <option value="classroom">教室</option>
+              <option value="fridge">冰箱</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -67,6 +100,21 @@ export default function BoardShell() {
             <div className="empty">目前沒有公告。</div>
           )}
         </div>
+
+        {searchResults !== null && (
+          <>
+            <div className="section-title">搜尋結果</div>
+            <div className="search-area">
+              {searching ? (
+                <div className="empty">搜尋中…</div>
+              ) : searchResults.length > 0 ? (
+                searchResults.map(post => <PostCard key={post.id} post={post} />)
+              ) : (
+                <div className="empty">找不到符合的公告。</div>
+              )}
+            </div>
+          </>
+        )}
 
         <div className="section-title">歷史訊息</div>
         <div className="history-area">
