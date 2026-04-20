@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type { ThemeKey, Post } from '../types'
 import { themeMap } from '../data/themes'
 import { initialPosts } from '../data/initialPosts'
-import { getLatestPost } from '../api'
+import { getLatestPost, getCount } from '../api'
 import Composer from './Composer'
 import PostCard from './PostCard'
 
@@ -11,12 +11,17 @@ export default function BoardShell() {
   const [latestPost, setLatestPost] = useState<Post | null>(null)
   const [historyPosts, setHistoryPosts] = useState<Post[]>(initialPosts.slice(1))
   const [loading, setLoading] = useState(true)
+  const [postCount, setPostCount] = useState<number | null>(null)
 
   useEffect(() => {
     getLatestPost()
       .then(post => setLatestPost(post))
       .catch(() => setLatestPost(initialPosts[0] ?? null))
       .finally(() => setLoading(false))
+
+    getCount()
+      .then(count => setPostCount(count))
+      .catch(() => {})
   }, [])
 
   const { className, title } = themeMap[theme]
@@ -24,13 +29,14 @@ export default function BoardShell() {
   function handlePublish(post: Post) {
     setHistoryPosts(prev => latestPost ? [latestPost, ...prev] : prev)
     setLatestPost(post)
+    setPostCount(prev => prev !== null ? prev + 1 : null)
   }
 
   return (
     <section className={`board-shell ${className}`}>
       <div className="board-topbar">
         <div className="board-heading">
-          <h2>{title}</h2>
+          <h2>{title}{postCount !== null && `（共 ${postCount} 則公告）`}</h2>
           <div className="board-subtitle">最新公告會固定顯示在最上方，方便快速查看</div>
         </div>
 

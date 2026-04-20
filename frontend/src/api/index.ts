@@ -52,6 +52,15 @@ export async function getLatestPost(): Promise<Post | null> {
   return json.data ?? null
 }
 
+// ── 取得公告總數（GET） ─────────────────────────────────────
+
+export async function getCount(): Promise<number> {
+  const res = await fetch(`${API_ENDPOINT}?action=count`)
+  const json: ApiResponse<{ count: number }> = await res.json()
+  if (!json.success) throw new Error(json.error ?? '取得公告總數失敗')
+  return json.data?.count ?? 0
+}
+
 // ── 取得歷史訊息（GET） ─── TODO：留給同仁實作 ───────────────
 
 export async function getHistory(): Promise<Post[]> {
