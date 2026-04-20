@@ -15,7 +15,7 @@ function getAllPosts() {
   const rows = getSheet().getDataRange().getValues();
   return rows.slice(1).map(function(row) {
     return { id: row[0], title: row[1], message: row[2], author: row[3], time: row[4] };
-  });
+  }).reverse();
 }
 
 function savePost(title, message, author) {

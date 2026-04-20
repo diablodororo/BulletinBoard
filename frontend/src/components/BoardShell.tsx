@@ -1,14 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ThemeKey, Post } from '../types'
 import { themeMap } from '../data/themes'
 import { initialPosts } from '../data/initialPosts'
+import { getLatestPost } from '../api'
 import Composer from './Composer'
 import PostCard from './PostCard'
 
 export default function BoardShell() {
   const [theme, setTheme] = useState<ThemeKey>('office')
-  const [latestPost, setLatestPost] = useState<Post | null>(initialPosts[0] ?? null)
+  const [latestPost, setLatestPost] = useState<Post | null>(null)
   const [historyPosts, setHistoryPosts] = useState<Post[]>(initialPosts.slice(1))
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getLatestPost()
+      .then(post => setLatestPost(post))
+      .catch(() => setLatestPost(initialPosts[0] ?? null))
+      .finally(() => setLoading(false))
+  }, [])
 
   const { className, title } = themeMap[theme]
 
@@ -44,7 +53,9 @@ export default function BoardShell() {
       <div className="sections">
         <div className="section-title">最新公告</div>
         <div className="latest-area">
-          {latestPost ? (
+          {loading ? (
+            <div className="empty">載入中…</div>
+          ) : latestPost ? (
             <PostCard post={latestPost} isLatest />
           ) : (
             <div className="empty">目前沒有公告。</div>
