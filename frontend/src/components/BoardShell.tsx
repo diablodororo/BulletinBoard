@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react'
 import type { ThemeKey, Post } from '../types'
 import { themeMap } from '../data/themes'
 import { initialPosts } from '../data/initialPosts'
-import { getLatestPost, getCount, searchPosts } from '../api'
+import { getLatestPost, getCount, searchPosts, getHistory } from '../api'
 import Composer from './Composer'
 import PostCard from './PostCard'
 
 export default function BoardShell() {
   const [theme, setTheme] = useState<ThemeKey>('office')
   const [latestPost, setLatestPost] = useState<Post | null>(null)
-  const [historyPosts, setHistoryPosts] = useState<Post[]>(initialPosts.slice(1))
+  const [historyPosts, setHistoryPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
+  const [historyLoading, setHistoryLoading] = useState(true)
+  const [historyError, setHistoryError] = useState(false)
   const [postCount, setPostCount] = useState<number | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Post[] | null>(null)
@@ -40,6 +42,11 @@ export default function BoardShell() {
     getCount()
       .then(count => setPostCount(count))
       .catch(() => {})
+
+    getHistory()
+      .then(posts => setHistoryPosts(posts))
+      .catch(() => setHistoryError(true))
+      .finally(() => setHistoryLoading(false))
   }, [])
 
   const { className, title } = themeMap[theme]
@@ -118,8 +125,12 @@ export default function BoardShell() {
 
         <div className="section-title">歷史訊息</div>
         <div className="history-area">
-          {historyPosts.length > 0 ? (
-            historyPosts.map((post, i) => <PostCard key={i} post={post} />)
+          {historyLoading ? (
+            <div className="empty">載入中…</div>
+          ) : historyError ? (
+            <div className="empty">載入失敗，請重新整理。</div>
+          ) : historyPosts.length > 0 ? (
+            historyPosts.map(post => <PostCard key={post.id} post={post} />)
           ) : (
             <div className="empty">目前沒有歷史訊息。</div>
           )}

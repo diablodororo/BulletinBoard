@@ -73,9 +73,8 @@ export async function searchPosts(q: string): Promise<Post[]> {
 // ── 取得歷史訊息（GET） ─── TODO：留給同仁實作 ───────────────
 
 export async function getHistory(): Promise<Post[]> {
-  // TODO:
-  // const res = await fetch(`${API_ENDPOINT}?action=history`)
-  // const json: ApiResponse<Post[]> = await res.json()
-  // return json.data ?? []
-  throw new Error('尚未實作')
+  const res = await fetch(`${API_ENDPOINT}?action=history`)
+  const json: ApiResponse<Post[]> = await res.json()
+  if (!json.success) throw new Error(json.error ?? '取得歷史訊息失敗')
+  return json.data ?? []
 }
